@@ -2,12 +2,11 @@ module AutoSessionTimeoutWarning
 
   def self.included(controller)
     controller.extend ClassMethods
-    controller.hide_action :render_auto_session_timeout
   end
 
   module ClassMethods
     def auto_session_timeout(seconds=nil)
-      prepend_before_filter do |c|
+      prepend_before_action do |c|
         if c.session[:auto_session_expires_at] && c.session[:auto_session_expires_at] < Time.now
           c.send :before_timedout
           saml_uid = session['saml_uid']

@@ -4,6 +4,7 @@ module AutoSessionTimeoutWarningHelper
     timeout = options[:timeout] || 60
     start = options[:start] || 60
     warning = options[:warning] || 20
+    logoutURL = options[:logoutURL]
     code = <<JS
 if(typeof(jQuery) != 'undefined'){
   $("#logout_dialog").dialog({
@@ -11,16 +12,26 @@ if(typeof(jQuery) != 'undefined'){
     width: 500,
     height: 180,
     autoOpen: false,
-    dialogClass: "no-close"
+    dialogClass: "no-close",
+    closeOnEscape: false
   });
 
   $(".logout_dialog").click(function (e) {
     e.preventDefault();
 
-    $("#logout_dialog").dialog('option', 'buttons', 
+    $("#logout_dialog").dialog('option', 'buttons',
       [
         {
-          text: "Continue",
+          text: "Log Out",
+          icons: {
+            primary: "ui-icon-heart"
+          },
+          click: function () {
+            window.location.href = "#{logoutURL}"
+          }
+        },
+        {
+          text: "Stay Logged In",
           icons: {
             primary: "ui-icon-heart"
           },
@@ -33,6 +44,9 @@ if(typeof(jQuery) != 'undefined'){
 
     $("#logout_dialog").dialog("open");
 
+    // Remove focus on all buttons within the
+    // div with class ui-dialog
+    $('.ui-dialog :button').blur();
   });
 
   function PeriodicalQuery() {

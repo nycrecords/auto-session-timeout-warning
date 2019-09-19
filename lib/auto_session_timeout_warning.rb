@@ -24,6 +24,7 @@ module AutoSessionTimeoutWarning
     def auto_session_timeout_actions
       define_method(:active) { render_session_status }
       define_method(:timeout) { render_session_timeout }
+      define_method(:renew) { render_session_renew }
     end
 
     def before_timedout_action
@@ -42,6 +43,7 @@ module AutoSessionTimeoutWarning
     redirect_to "/login"
   end
 
+  def render_session_renew; end
 end
 
 ActionController::Base.send :include, AutoSessionTimeoutWarning

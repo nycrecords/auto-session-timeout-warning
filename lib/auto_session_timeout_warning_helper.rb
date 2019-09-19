@@ -18,6 +18,7 @@ if(typeof(jQuery) != 'undefined'){
 
   $(".logout_dialog").click(function (e) {
     e.preventDefault();
+    clearTimeout(timeout);
 
     $("#logout_dialog").dialog('option', 'buttons',
       [
@@ -36,7 +37,9 @@ if(typeof(jQuery) != 'undefined'){
             primary: "ui-icon-heart"
           },
           click: function () {
-            window.location.reload();
+            $.get('/renew_session');
+            $("#logout_dialog").dialog("close");
+            timeout = setTimeout(PeriodicalQuery, (#{start} * 1000));
           }
         }
       ]
@@ -55,18 +58,30 @@ if(typeof(jQuery) != 'undefined'){
       success: function(data) {
         if(new Date(data.timeout).getTime() < (new Date().getTime() + #{warning} * 1000)){
           showDialog();
+          setTimeout(autoLogout, #{warning} * 1000)
         }
+        else {
+          timeout = setTimeout(PeriodicalQuery, (#{frequency} * 1000));
+        }
+        // TODO: Remove, this may not be needed
         if(data.live == false){
           window.location.href = '/timeout';
         }
       }
     });
-    setTimeout(PeriodicalQuery, (#{frequency} * 1000));
   }
-  setTimeout(PeriodicalQuery, (#{start} * 1000));
+
+  var timeout = setTimeout(PeriodicalQuery, (#{start} * 1000));
 
   function showDialog(){
     $('.logout_dialog').trigger('click');
+  }
+
+  function autoLogout() {
+    if ($("#logout_dialog").dialog('isOpen')) {
+      window.location.href = "#{logoutURL}";
+      $("#logout_dialog").dialog("close");
+    }
   }
 }
 JS
